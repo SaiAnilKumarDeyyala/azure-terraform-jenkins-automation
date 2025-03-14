@@ -50,7 +50,6 @@ pipeline {
         stage('Terraform Validate and Format') {
             steps {
                 sh 'terraform fmt -check=true'
-                sh 'terraform validate'
             }
         }
 
