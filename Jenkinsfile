@@ -23,11 +23,13 @@ pipeline {
                         sh '''
                             az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
                         '''
-
-                        // Check if the storage account exists
-                        def storageAccountExists = sh(script: "az storage account show --name $TF_STATE_STORAGE --resource-group $TF_STATE_RG --query id -o tsv", returnStdout: true).trim()
                         
-                        if (!storageAccountExists) {
+                        // Try to check if the storage account exists
+                        def storageAccountExists = sh(script: """
+                            az storage account show --name $TF_STATE_STORAGE --resource-group $TF_STATE_RG --query id -o tsv || echo "not found"
+                        """, returnStdout: true).trim()
+
+                        if (storageAccountExists == "not found") {
                             echo "Creating new storage account for Terraform state."
                             // Create resource group, storage account, and container for Terraform state
                             sh '''
@@ -42,6 +44,7 @@ pipeline {
                 }
             }
         }
+
 
 
         stage('Terraform Validate and Format') {
