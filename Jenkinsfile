@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        AZURE_CREDENTIALS_ID = 'Azure-jenkins-sp'
+        AZURE_CREDENTIALS = 'Azure-jenkins-sp'
         TF_STATE_RG = 'jenkins-rg' 
         TF_STATE_STORAGE = 'tfstate-storage'
         TF_STATE_CONTAINER = 'tfstate' 
