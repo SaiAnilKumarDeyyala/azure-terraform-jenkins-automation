@@ -94,9 +94,6 @@ pipeline {
         }
 
         stage('Terraform Destroy') {
-            when {
-                branch 'destroy' // Only runs on the 'destroy' branch
-            }
             steps {
                 withCredentials([azureServicePrincipal(credentialsId: AZURE_CREDENTIALS, subscriptionIdVariable: 'AZURE_SUBSCRIPTION_ID', clientIdVariable: 'AZURE_CLIENT_ID', clientSecretVariable: 'AZURE_CLIENT_SECRET', tenantIdVariable: 'AZURE_TENANT_ID')]) {
                     sh '''
