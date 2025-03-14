@@ -4,7 +4,7 @@ pipeline {
     environment {
         AZURE_CREDENTIALS = 'Azure-jenkins-sp'
         TF_STATE_RG = 'jenkins-rg' 
-        TF_STATE_STORAGE = 'tfstate-storage'
+        TF_STATE_STORAGE = 'tfstatestorage'
         TF_STATE_CONTAINER = 'tfstate' 
     }
 
