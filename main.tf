@@ -1,6 +1,5 @@
 data "azurerm_resource_group" "rg" {
   name     = var.resource_group_name
-  location = var.location
 }
 
 module "vnet" {
@@ -21,7 +20,7 @@ module "vm" {
   nic_name              = var.nic_name
   ip_configuration_name = var.ip_configuration_name
   subnet_id             = module.vnet.subnet_id
-  location              = var.location
+  location              = data.azurerm_resource_group.rg.location
   resource_group_name   = data.azurerm_resource_group.rg.name
   vm_size               = var.vm_size
   vm_username           = var.vm_username
