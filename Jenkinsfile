@@ -17,7 +17,7 @@ pipeline {
 
         stage('Deploy Terraform State Storage (First Run Only)') {
             steps {
-                withCredentials([azureServicePrincipal(AZURE_CREDENTIALS_ID)]) {
+                withCredentials([azureServicePrincipal(credentialsId: AZURE_CREDENTIALS, subscriptionIdVariable: 'AZURE_SUBSCRIPTION_ID', clientIdVariable: 'AZURE_CLIENT_ID', clientSecretVariable: 'AZURE_CLIENT_SECRET', tenantIdVariable: 'AZURE_TENANT_ID')]) {
                     script {
                         def storageAccountExists = sh(script: "az storage account show --name $TF_STATE_STORAGE --resource-group $TF_STATE_RG --query id -o tsv", returnStdout: true).trim()
                         if (!storageAccountExists) {
@@ -44,7 +44,7 @@ pipeline {
 
         stage('Terraform Init') {
             steps {
-                withCredentials([azureServicePrincipal(AZURE_CREDENTIALS_ID)]) {
+                withCredentials([azureServicePrincipal(credentialsId: AZURE_CREDENTIALS, subscriptionIdVariable: 'AZURE_SUBSCRIPTION_ID', clientIdVariable: 'AZURE_CLIENT_ID', clientSecretVariable: 'AZURE_CLIENT_SECRET', tenantIdVariable: 'AZURE_TENANT_ID')]) {
                     sh '''
                         az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
                         terraform init -backend-config="resource_group_name=$TF_STATE_RG" -backend-config="storage_account_name=$TF_STATE_STORAGE" -backend-config="container_name=$TF_STATE_CONTAINER" -backend-config="key=terraform.tfstate"
@@ -55,7 +55,7 @@ pipeline {
 
         stage('Terraform Plan') {
             steps {
-                withCredentials([azureServicePrincipal(AZURE_CREDENTIALS_ID)]) {
+                withCredentials([azureServicePrincipal(credentialsId: AZURE_CREDENTIALS, subscriptionIdVariable: 'AZURE_SUBSCRIPTION_ID', clientIdVariable: 'AZURE_CLIENT_ID', clientSecretVariable: 'AZURE_CLIENT_SECRET', tenantIdVariable: 'AZURE_TENANT_ID')]) {
                     sh '''
                         az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
                         terraform plan -out=tfplan
@@ -73,7 +73,7 @@ pipeline {
 
         stage('Terraform Apply') {
             steps {
-                withCredentials([azureServicePrincipal(AZURE_CREDENTIALS_ID)]) {
+                withCredentials([azureServicePrincipal(credentialsId: AZURE_CREDENTIALS, subscriptionIdVariable: 'AZURE_SUBSCRIPTION_ID', clientIdVariable: 'AZURE_CLIENT_ID', clientSecretVariable: 'AZURE_CLIENT_SECRET', tenantIdVariable: 'AZURE_TENANT_ID')]) {
                     sh '''
                         az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
                         terraform apply tfplan
@@ -87,7 +87,7 @@ pipeline {
                 branch 'destroy' // Only runs on the 'destroy' branch
             }
             steps {
-                withCredentials([azureServicePrincipal(AZURE_CREDENTIALS_ID)]) {
+                withCredentials([azureServicePrincipal(credentialsId: AZURE_CREDENTIALS, subscriptionIdVariable: 'AZURE_SUBSCRIPTION_ID', clientIdVariable: 'AZURE_CLIENT_ID', clientSecretVariable: 'AZURE_CLIENT_SECRET', tenantIdVariable: 'AZURE_TENANT_ID')]) {
                     sh '''
                         az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
                         terraform destroy -auto-approve
