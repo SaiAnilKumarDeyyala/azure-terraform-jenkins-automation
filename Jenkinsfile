@@ -21,8 +21,7 @@ pipeline {
                     script {
                         // Ensure login is done using the service principal
                         sh '''
-                            az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-                            az account set --subscription $AZURE_SUBSCRIPTION_ID
+                            az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID --allow-no-subscriptions
                         '''
                         
                         // Try to check if the storage account exists
