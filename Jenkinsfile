@@ -82,26 +82,60 @@ pipeline {
             }
         }
 
-        stage('Terraform Apply') {
+        // stage('Terraform Apply') {
+        //     steps {
+        //         withCredentials([azureServicePrincipal(credentialsId: AZURE_CREDENTIALS, subscriptionIdVariable: 'AZURE_SUBSCRIPTION_ID', clientIdVariable: 'AZURE_CLIENT_ID', clientSecretVariable: 'AZURE_CLIENT_SECRET', tenantIdVariable: 'AZURE_TENANT_ID')]) {
+        //             sh '''
+        //                 az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+        //                 terraform apply tfplan
+        //             '''
+        //         }
+        //     }
+        // }
+
+        // stage('Terraform Destroy') {
+        //     steps {
+        //         withCredentials([azureServicePrincipal(credentialsId: AZURE_CREDENTIALS, subscriptionIdVariable: 'AZURE_SUBSCRIPTION_ID', clientIdVariable: 'AZURE_CLIENT_ID', clientSecretVariable: 'AZURE_CLIENT_SECRET', tenantIdVariable: 'AZURE_TENANT_ID')]) {
+        //             sh '''
+        //                 az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+        //                 terraform destroy -auto-approve
+        //             '''
+        //         }
+        //     }
+        // }
+
+        stage('Manual Approval - Apply or Destroy') {
             steps {
-                withCredentials([azureServicePrincipal(credentialsId: AZURE_CREDENTIALS, subscriptionIdVariable: 'AZURE_SUBSCRIPTION_ID', clientIdVariable: 'AZURE_CLIENT_ID', clientSecretVariable: 'AZURE_CLIENT_SECRET', tenantIdVariable: 'AZURE_TENANT_ID')]) {
-                    sh '''
-                        az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-                        terraform apply tfplan
-                    '''
+                script {
+                    def userChoice = input(
+                        message: 'Choose Terraform Action to Perform',
+                        parameters: [
+                            choice(
+                                name: 'ACTION',
+                                choices: ['Apply', 'Destroy'],
+                                description: 'Choose whether to apply or destroy the Terraform plan'
+                            )
+                        ]
+                    )
+
+                    if (userChoice == 'Apply') {
+                        echo "User chose to Apply the Terraform plan."
+                        // Ask for final approval to apply the plan
+                        input message: 'Approve Terraform Apply?'
+                        sh '''
+                            terraform apply tfplan
+                        '''
+                    } else if (userChoice == 'Destroy') {
+                        echo "User chose to Destroy the Terraform plan."
+                        // Ask for final approval to destroy the infrastructure
+                        input message: 'Approve Terraform Destroy?'
+                        sh '''
+                            terraform destroy -auto-approve
+                        '''
+                    }
                 }
             }
         }
 
-        stage('Terraform Destroy') {
-            steps {
-                withCredentials([azureServicePrincipal(credentialsId: AZURE_CREDENTIALS, subscriptionIdVariable: 'AZURE_SUBSCRIPTION_ID', clientIdVariable: 'AZURE_CLIENT_ID', clientSecretVariable: 'AZURE_CLIENT_SECRET', tenantIdVariable: 'AZURE_TENANT_ID')]) {
-                    sh '''
-                        az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-                        terraform destroy -auto-approve
-                    '''
-                }
-            }
-        }
     }
 }
