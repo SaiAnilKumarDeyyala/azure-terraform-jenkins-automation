@@ -35,7 +35,7 @@ pipeline {
                             sh '''
                                 az group create --name $TF_STATE_RG --location eastus || true
                                 az storage account create --name $TF_STATE_STORAGE --resource-group $TF_STATE_RG --sku Standard_LRS
-                                az storage container create --name $TF_STATE_CONTAINER --account-name $TF_STATE_STORAGE --account-key $(az storage account keys list --account-name $TF_STATE_STORAGE --resource-group $TF_STATE_RG --query "[0].value" -o tsv)
+                                az storage container create --name $TF_STATE_CONTAINER --account-name $TF_STATE_STORAGE --account-key $(az storage account keys list --account-name $TF_STATE_STORAGE --resource-group $TF_STATE_RG --query "[0].value" -o tsv) --public-access blob
                             '''
                         } else {
                             echo "Terraform state storage already exists. Skipping creation."
@@ -120,15 +120,11 @@ pipeline {
 
                     if (userChoice == 'Apply') {
                         echo "User chose to Apply the Terraform plan."
-                        // Ask for final approval to apply the plan
-                        input message: 'Approve Terraform Apply?'
                         sh '''
                             terraform apply tfplan
                         '''
                     } else if (userChoice == 'Destroy') {
                         echo "User chose to Destroy the Terraform plan."
-                        // Ask for final approval to destroy the infrastructure
-                        input message: 'Approve Terraform Destroy?'
                         sh '''
                             terraform destroy -auto-approve
                         '''
